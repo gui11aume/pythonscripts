@@ -12,7 +12,7 @@ except ImportError:
 
 # Private modules.
 from vtrack import vheader
-from misctools import closest
+from misctools import get_closest
 
 __author__ = 'Guillaume Filion'
 __email__ = 'guillaume.filion@gmail.com'
@@ -26,7 +26,8 @@ MAXDIST = 1000
 
 def dist(TSS, mapinfo):
    """Distance function between a TSS and the mapping
-   information of a binding element. Passed to 'closest()'."""
+   information of a binding element. Passed to
+   'get_closest()'."""
    if TSS[0] != mapinfo[0]:
       # Different seqnames: infinite distance.
       return float('inf')
@@ -91,7 +92,7 @@ def JSONtargets(mappingfile, bindingfile):
 
 
    # Get the closest feature to TSS.
-   close_elt = closest(TSS, mapinfo, dist = dist)
+   close_elt = get_closest(TSS, mapinfo, dist = dist)
 
 
    for geneID in close_elt:
