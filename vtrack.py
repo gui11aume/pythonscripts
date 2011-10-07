@@ -140,11 +140,11 @@ def __get_git_info(script_name):
    # if the directory is not a repository.
    repo = git.Repo(sys.path[0])
    # Check whether the script is in untracked files.
-   if script_name in repo.untracked_files:
+   if os.path.basename(script_name) in repo.untracked_files:
       raise Exception('%s not tracked' % script_name)
    # Check whether the script is in a committed state.
    changed = [diff.a_blob.name for diff in repo.index.diff(None)]
-   if script_name in changed:
+   if os.path.basename(script_name) in changed:
       raise Exception('%s has been changed since last commit' % script_name)
    # Get the commit's SHA1 digest.
    return [
