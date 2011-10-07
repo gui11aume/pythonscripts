@@ -15,13 +15,6 @@ __version__ = '0.1'
 __author__ = 'Guillaume Filion'
 __email__ = 'guillaume.filion@gmail.com'
 
-# Automatic version control.
-filehead = """# Script: %s
-# Version: %s
-# Date: %s
-# Invocation: %s
-# MD5: %s
-"""
 
 # Patterns.
 loc = 'loc=([^:]+):(complement\()?([0-9]+)\.\.([0-9]+)'
