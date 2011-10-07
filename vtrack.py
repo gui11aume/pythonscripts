@@ -89,10 +89,8 @@ def vheader(script_name, *args, **kwargs):
 
 def __get_call():
    """Return the system invocation of the script."""
-   args = sys.argv[:]
-   args[0] = sys.path[0] + '/' + args[0]
    return [
-      ('call', ' '.join(args))
+      ('call', ' '.join(sys.argv))
    ]
 
 def __get_uname_info():
