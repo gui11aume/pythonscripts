@@ -10,8 +10,6 @@ import sys
 import re
 from vtrack import vheader
 
-# Manual version control.
-from git import *
 
 __version__ = '0.1'
 __author__ = 'Guillaume Filion'
