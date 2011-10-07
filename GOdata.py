@@ -326,7 +326,7 @@ if __name__ == '__main__':
       specs = data.specs
 
    # Write the vheader.
-   sys.stdout.write(vheader(__file__))
+   sys.stdout.write(vheader(*sys.argv))
    # Write the association/OBO header.
    for info in data.version:
       sys.stdout.write('# %s\n' % info)

@@ -47,7 +47,7 @@ table_header = '\t'.join((
    )) + '\n'
 
 # Print the vheader.
-sys.stdout.write(vheader(__file__))
+sys.stdout.write(vheader(*sys.argv))
 # Print a header.
 sys.stdout.write(table_header)
 # Sort lines by key, ie seqname, start.

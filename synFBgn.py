@@ -39,7 +39,7 @@ lookup_header = '\t'.join((
    )) + '\n'
 
 # Print the vheader.
-sys.stdout.write(vheader(__file__))
+sys.stdout.write(vheader(*sys.argv))
 # Print a lookup header.
 sys.stdout.write(lookup_header)
 # Print the dictionary.

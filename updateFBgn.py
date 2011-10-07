@@ -19,7 +19,7 @@ def to_canonID(FBmatch):
    return canonID.get(FBmatch.group(), 'no_canonID')
 
 # Write the vheader.
-sys.stdout.write(vheader(__file__))
+sys.stdout.write(vheader(*sys.argv))
 # Read-in arg file and update FBgn line by line.
 with open(sys.argv[2]) as argfile:
    for line in argfile:
