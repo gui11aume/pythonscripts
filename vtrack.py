@@ -55,8 +55,10 @@ def vheader(script_name, *args, **kwargs):
       head_list.extend(get_base_info())
 
    # Gather SHA1 digests.
-   head_list.extend(__get_sha1(script_name))
-   for file_name in args:
+   for file_name in [script_name] + list(args):
+      # Argument files may have a relative or abolute path.
+      file_name = file_name if os.path.isabs(file_name) else \
+            os.path.join(os.getcwd(), file_name)
       try:
          head_list.extend(__get_sha1(file_name))
       except IOError:
