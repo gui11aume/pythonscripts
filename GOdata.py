@@ -30,7 +30,7 @@ except ImportError:
    # Python 2.5
    import simplejson as json
 
-from vtrack import vheader
+from vtrack import vheader, vskip
 
 
 __author__ = 'Guillaume Filion'
@@ -254,7 +254,7 @@ def parseOBOXML(filename):
 def parseGeneAssociations(filename, comment_char='!', columns=(2,5)):
    assoVersion = ['-- associations version information --']
    pairlist = []
-   for line in open(filename):
+   for line in vskip(open(filename)):
       if line.startswith(comment_char):
          assoVersion.append(line[1:].rstrip())
       else:
@@ -264,7 +264,7 @@ def parseGeneAssociations(filename, comment_char='!', columns=(2,5)):
          # Skip gene with no canonical ID (flanked by '__')
          if gene[:2] == '__':
             continue
-         GOterm = items[columns[5]]
+         GOterm = items[columns[1]]
          pairlist.append((GOterm, gene))
 
    return {
