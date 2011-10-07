@@ -8,8 +8,6 @@ Output: [geneID, seqname, start, end, strand]
 
 import sys
 import re
-import datetime
-import hashlib
 from vtrack import vheader
 
 # Manual version control.
