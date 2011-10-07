@@ -23,7 +23,6 @@ __version__ = '0.1'
 # binding element (array probe).
 MAXDIST = 1000
 
-
 def dist(TSS, mapinfo):
    """Distance function between a TSS and the mapping
    information of a binding element. Passed to
@@ -106,7 +105,7 @@ def JSONtargets(mappingfile, bindingfile):
                feat for (feat, yes) in \
                # Example: [('D005', 0), ('D007', 0), ...]
                zip(features, bindinfo[close_elt[geneID]]) \
-               if yes
+               if yes == '1'
             ]:
             targets.get(feature).append(geneID)
 
