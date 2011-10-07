@@ -41,19 +41,26 @@ for h in headers:
    strand = '+' if strand is None else '-'
    (geneID,) = re.search(ID, h).groups()
    # Format the line for output, update dict 'genes'.
-   genes[(seq, int(start))] = '\t'.join((geneID,seq,start,end,strand))
+   genes[(seq, int(start))] = '\t'.join((
+         geneID,
+         seq,
+         start,
+         end,
+         strand
+      ))
 
-code = open(__file__, 'r').read()
-sys.stdout.write(filehead % (
-      __file__,
-      version??,
-      datetime.datetime().strfime('%Y-%m-%d'),
-      ' '.join(sys.argv),
-      hashlib.md5(code).hexdigest()
-   )
+table_header = '\t'.join((
+      'geneID',
+      'seqname',
+      'start',
+      'end',
+      'strand'
+   )) + '\n'
 
 # Print the vheader.
 sys.stdout.write(vheader(__file__))
+# Print a header.
+sys.stdout.write(table_header)
 # Sort lines by key, ie seqname, start.
 for key in sorted(genes):
    sys.stdout.write('%s\n' % genes[key])
