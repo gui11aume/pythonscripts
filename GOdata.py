@@ -166,7 +166,7 @@ class GOspecs:
       """Return a list of the (direct) children GO terms of
       a GO term set."""
 
-      childrend = set()
+      children = set()
       for GOterm in self.specs:
          if GOterm in set(GOlist): children.add(GOterm)
       return list(children)
@@ -252,7 +252,7 @@ def parseGeneAssociations(filename, comment_char='!'):
    assoVersion = ['-- associations version information --']
    pairlist = []
    for line in open(filename):
-      if line.startswith(comment_char)
+      if line.startswith(comment_char):
          assoVersion.append(line[1:].rstrip())
       pairMatch = re.search('(FBgn\d{7}).*(GO:\d{7})', line)
       if not pairMatch is None:
@@ -286,7 +286,7 @@ if __name__ == '__main__':
    # Parse options.
    parser = OptionParser(
          usage = '%prog [--slim] [--subslim] association_file OBOXML_file',
-         description = 'Basic tools to build GO associations.',
+         description = 'Basic tool to build GO associations.',
          version = '%prog ' + __version__
       )
    parser.add_option(

@@ -147,7 +147,7 @@ def __get_git_info(script_name):
    # Check whether the script is in a committed state.
    changed = [diff.a_blob.name for diff in repo.index.diff(None)]
    if script_name in changed:
-      raise Exception('%s has been changed since last commit')
+      raise Exception('%s has been changed since last commit' % script_name)
    # Get the commit's SHA1 digest.
    return [
       ('git commit', repo.head.commit.hexsha)
