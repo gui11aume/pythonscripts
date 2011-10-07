@@ -260,11 +260,11 @@ def parseGeneAssociations(filename, comment_char='!', columns=(2,5)):
       else:
          # Parse by specified columns.
          items = line.split('\t')
-         gene = items[columns[0]]
+         gene = items[columns[0]-1]
          # Skip gene with no canonical ID (flanked by '__')
          if gene[:2] == '__':
             continue
-         GOterm = items[columns[1]]
+         GOterm = items[columns[1]-1]
          pairlist.append((GOterm, gene))
 
    return {
