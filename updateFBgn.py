@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+Replace FBgn IDs in a file according to a lookup table.
+If the FBgn is not in the table, it is flanked by '__'
+which is something to grep for.
+"""
 
 from __future__ import with_statement
 
@@ -16,7 +21,10 @@ with open(sys.argv[1]) as lookup:
       canonID.update([line.rstrip().split('\t')])
 
 def to_canonID(FBmatch):
-   return canonID.get(FBmatch.group(), 'no_canonID')
+   return canonID.get(
+         FBmatch.group(),
+         '__' + FBmatch.group() + '__'
+      )
 
 # Write the vheader.
 sys.stdout.write(vheader(*sys.argv))

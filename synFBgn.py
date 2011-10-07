@@ -4,6 +4,10 @@
 Make a lookup table of FBgn synonyms from a FlyBase
 dmel-all-gene... fasta file.
 
+Only mapped genes will have a canonical ID, so if a
+gene does not have a canonical ID in a release it
+does not mean that the gene has no annotation in
+this release.
 """
 
 import sys

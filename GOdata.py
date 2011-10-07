@@ -15,7 +15,8 @@ The script has not been tested on association files from
 different species, but it should work after minor modifications.
 The header of the FlyBase association files starts with '!',
 which is the default 'comment_char' argument of the function
-'parseGeneAssociations'.
+'parseGeneAssociations'. The function assumes that the gene ID
+is in file column 2  and the GO term in column 5.
 """
 
 import re
@@ -250,16 +251,21 @@ def parseOBOXML(filename):
 
 
 
-def parseGeneAssociations(filename, comment_char='!'):
+def parseGeneAssociations(filename, comment_char='!', columns=(2,5)):
    assoVersion = ['-- associations version information --']
    pairlist = []
    for line in open(filename):
       if line.startswith(comment_char):
          assoVersion.append(line[1:].rstrip())
-      pairMatch = re.search('(FBgn\d{7}).*(GO:\d{7})', line)
-      if not pairMatch is None:
-         (FBgn, GO) = pairMatch.groups()
-         pairlist.append((GO, FBgn))
+      else:
+         # Parse by specified columns.
+         items = line.split('\t')
+         gene = items[columns[0]]
+         # Skip gene with no canonical ID (flanked by '__')
+         if gene[:2] == '__':
+            continue
+         GOterm = items[columns[5]]
+         pairlist.append((GOterm, gene))
 
    return {
          'associations': pairlist,
