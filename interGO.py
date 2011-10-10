@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Author: Guillaume Filion.
-Date: August 9, 2011.
-
-Print a matrix of gene counts given two .json files
+Write a matrix of gene counts given two .json files
 containing the GO specifications and the genes in
 different categories (typically targets of a protein).
+
+The output file can be uploaded in R by using
+'read.delim(file=..., comment.char="#")'.
 """
 
 import sys
@@ -16,6 +16,12 @@ except:
    import simplejson as json
 
 from vtrack import vheader, vskip
+
+__author__ = 'Guillaume Filion'
+__email__ = 'guillaume.filion@gmail.com'
+__date__ = '2011-10-10'
+__version__ = '0.1'
+
 
 def count(json_tar, json_specs, out=sys.stdout):
    """Print a count matrix of the target genes in a given
@@ -55,7 +61,7 @@ def count(json_tar, json_specs, out=sys.stdout):
    )
 
    # Print the table header.
-   out.write('feature\t' + '\t'.join(specs) + '\n')
+   out.write('\t'.join(specs) + '\ttotal\n')
    # Print the table
    for line in result:
       out.write('\t'.join(line) + '\n')
