@@ -79,7 +79,7 @@ class GOspecs:
 
    def __init__(self,
          associations, # [('gene 1', 'GO 1'), ('gene 2', 'GO 2'), ... ]
-         parentDict,   # {'GO 1': 'GO 2', 'GO 3': 'GO 4, ... }
+         parentDict,   # {'GO 1': ['GO 2', 'GO 3', 'GO 4], ... }
          canonid={},   # {'GO 1': 'GO 2', 'GO 3': 'GO 4, ... }
          names={},     # {'GO 1': 'name 1', ... }
          slim=[],
@@ -127,9 +127,9 @@ class GOspecs:
                # namespaceSets = {'GO:0005575': {gene1, ... }, ... }
                self.namespaceSets[ancestor].add(GOterm)
 
-      # Make specs a list (e.g. for JSON export).
+      # Remove multiple entries by list-setting.
       for GOterm in self.specs:
-         self.specs[GOterm] = list(self.specs[GOterm])
+         self.specs[GOterm] = list(set(self.specs[GOterm]))
 
       # Remove the name spaces from the slim by convention.
       # This allows to check that a GO term has no slim
@@ -168,11 +168,13 @@ class GOspecs:
    def childrenOf(self, GOlist):
       """Return a list of the (direct) children GO terms of
       a GO term set."""
-
-      children = set()
-      for GOterm in self.specs:
-         if GOterm in set(GOlist): children.add(GOterm)
-      return list(children)
+      
+      # Allow query by single string.
+      GOlist = set([GOlist]) if type(GOlist) is str else set(GOlist)
+      return list(set([
+         GOterm for GOterm in self.specs \
+         if GOlist.intersection(self.parentDict[GOterm])
+      ]))
 
    def parentsIn(self, GOterm, termset):
       """Return the parents of a GO term in a given set of
@@ -311,13 +313,26 @@ if __name__ == '__main__':
          default = False,
          help = 'Output GO sub+slim specifications.'
       )
+   parser.add_option(
+         '-n',
+         '--namespace',
+         dest = 'namespace',
+         default = None,
+         help =
+         """Restrict to a specific GO namespace. One of:
+           GO:0005575 (cellular_component)
+           GO:0003674 (molecular_function)
+           GO:0008150 (biological_process)"""
+      )
 
    (options, args) = parser.parse_args()
 
    if options.slim and options.subslim:
       sys.exit('specify either --slim or --subslim')
-
-
+   if not options.namespace in \
+         (None, 'GO:0005575', 'GO:0003674', 'GO:0008150'):
+      sys.exit('namespace must be GO:0005575, GO:0003674 or GO:0008150')
+   
    # Instantiate GOspecs.
    data = buildGO(args[0], args[1])
 
@@ -331,6 +346,11 @@ if __name__ == '__main__':
       specs = dict([(k, data.specs[k]) for k in subslim])
    else:
       specs = data.specs
+   # Restrict to a namespace if specified.
+   if options.namespace:
+      key_subset = set(specs).intersection(
+            data.namespaceSets[options.namespace])
+      specs = dict([(k, specs[k]) for k in key_subset])
 
    # Write the vheader.
    sys.stdout.write(vheader(*sys.argv))
