@@ -10,7 +10,7 @@ try:
 except ImportError:
    import simplejson as json
 
-# Private modules.
+# Home modules.
 from vtrack import vheader
 from misctools import get_closest
 
@@ -74,7 +74,8 @@ def JSONtargets(mappingfile, bindingfile):
    # Get feature names and remove (pop) the header.
    # Example: features = ['D005', 'D007', ...]
    features = binding.pop(0)[4:]
-   targets = {'NA': []}
+   # "all" and "NA" are mutually exclusive lists of genes.
+   targets = {'total': [], 'NA': []}
    for feature in features:
       targets[feature] = []
 
@@ -99,6 +100,7 @@ def JSONtargets(mappingfile, bindingfile):
          # The gene is too far. Push it to NA.
          targets.get('NA').append(geneID)
       else:
+         targets.get('total').append(geneID)
          # The gene gets the status of the binding element closest
          # to its TSS.
          for feature in [
