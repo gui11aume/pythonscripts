@@ -35,7 +35,7 @@ from vtrack import vheader, vskip
 
 __author__ = 'Guillaume Filion'
 __email__ = 'guillaume.filion@gmail.com'
-__date__ = '2011-10-07'
+__date__ = '2011-10-10'
 __version__ = '0.1'
 
 
