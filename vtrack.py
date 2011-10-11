@@ -150,7 +150,8 @@ def __get_git_info(script_name):
       raise Exception('%s has been changed since last commit' % script_name)
    # Get the commit's SHA1 digest.
    return [
-      ('git commit', repo.head.commit.hexsha)
+      ('git commit', repo.head.commit.hexsha),
+      ('git remote', repo.config_reader().get_value('remote "origin"', 'url'))
    ]
 
 def __get_script(script_name, comment_char):
