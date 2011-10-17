@@ -343,7 +343,7 @@ def buildGO(association_fname, OBOXML_fname):
 
 if __name__ == '__main__':
    """Read in two files and dump the specs to JSON."""
-   
+
    # Parse options.
    parser = OptionParser(
          usage = '%prog [--slim] [--subslim] association_file OBOXML_file',
@@ -374,6 +374,12 @@ if __name__ == '__main__':
            GO:0003674 (molecular_function)
            GO:0008150 (biological_process)"""
       )
+   parser.add_option(
+         '--names',
+         action = 'store_true',
+         default = False,
+         help = 'Output the name of GO terms: GO:xxx (name)'
+      )
 
    (options, args) = parser.parse_args()
 
@@ -382,7 +388,7 @@ if __name__ == '__main__':
    if not options.namespace in \
          (None, 'GO:0005575', 'GO:0003674', 'GO:0008150'):
       sys.exit('namespace must be GO:0005575, GO:0003674 or GO:0008150')
-   
+
    # Instantiate GOspecs.
    data = buildGO(args[0], args[1])
 
@@ -401,6 +407,11 @@ if __name__ == '__main__':
       key_subset = set(specs).intersection(
             data.namespaceSets[options.namespace])
       specs = dict([(k, specs[k]) for k in key_subset])
+
+   # Write full names if specified.
+   if options.names:
+      specs = dict([('%s (%s)' % (key, data.names[key]), specs[key]) \
+            for key in specs])
 
    # Write the vheader.
    sys.stdout.write(vheader(*sys.argv))
