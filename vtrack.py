@@ -33,6 +33,7 @@ from hashlib import sha1
 
 __author__ = 'Guillaume Filion'
 __email__ = 'guillaume.filion@gmail.com'
+__date__ = '2011-10-11'
 __version__ = '0.1'
 
 
@@ -148,11 +149,18 @@ def __get_git_info(script_name):
    changed = [diff.a_blob.name for diff in repo.index.diff(None)]
    if os.path.basename(script_name) in changed:
       raise Exception('%s has been changed since last commit' % script_name)
-   # Get the commit's SHA1 digest.
-   return [
-      ('git commit', repo.head.commit.hexsha),
-      ('git remote', repo.config_reader().get_value('remote "origin"', 'url'))
-   ]
+   try:
+      return [
+         # Get the commit's SHA1 digest and remote repository.
+         ('git commit', repo.head.commit.hexsha),
+         ('git remote', repo.config_reader().get_value(
+               'remote "origin"', 'url'))
+      ]
+   except ConfigParser.NoSectionError:
+      # No remote repository.
+      return [
+         ('git commit', repo.head.commit.hexsha)
+      ]
 
 def __get_script(script_name, comment_char):
    """Return the full script, prepend the comment character in
