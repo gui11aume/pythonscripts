@@ -22,8 +22,8 @@ is in file column 2  and the GO term in column 5.
 import re
 import sys
 from optparse import OptionParser
-import xml.dom.minidom
-from xml.dom.minidom import Node
+from xml.sax import handler, make_parser
+
 try:
    import json
 except ImportError:
@@ -35,7 +35,7 @@ from vtrack import vheader, vskip
 
 __author__ = 'Guillaume Filion'
 __email__ = 'guillaume.filion@gmail.com'
-__date__ = '2011-10-10'
+__date__ = '2011-10-17'
 __version__ = '0.1'
 
 
@@ -98,6 +98,10 @@ class GOspecs:
       # Store the original data.
       self.parentDict = parentDict
       self.names = names
+      # Make sure the namespaces are in parentDict and
+      # have no parent.
+      for GOterm in self.namespaces:
+         self.parentDict[GOterm] = []
       # Cast associations in-place (with canonical GO terms).
       self.associations = [list(a) for a in associations]
       for pair in self.associations:
@@ -107,7 +111,9 @@ class GOspecs:
                GO for (GO,gen) in self.associations
             ]).difference(parentDict):
          # Ooops...
-         raise GOException('association GO terms not in OBO tree')
+         raise GOException(set([
+               GO for (GO,gen) in self.associations
+            ]).difference(parentDict))
      
       # Versions and dates.
       self.version = []
@@ -193,9 +199,84 @@ class GOspecs:
 
 
 def parseOBOXML(filename):
-   """Returns a parent dictionary and an alt_id dictionary."""
-   
-   doc = xml.dom.minidom.parse(filename)
+   """Return a couple of dictionaries and lists upon
+   parsing an OBOXML file with a SAX parser."""
+
+   # Define a SAX parser.
+   class OBOXMLHandler(handler.ContentHandler):
+      """SAX parser for OBO-XML file. Assumes that every "term"
+      node has only one "id" subnode, and that the "is_obsolete"
+      term comes last."""
+
+      def __init__(self, OBOversion, parentDict, canonid, names, slim):
+         """Pass in hashes to be updated while parsing."""
+         self.id = None
+         self.name = None
+         self.read_to = False
+         self.in_source = False
+         self.data = ''
+         self.OBOversion = OBOversion
+         self.parentDict = parentDict
+         self.canonid = canonid
+         self.names = names
+         self.slim = slim
+
+      def startElement(self, name, attrs):
+         self.data = ''
+         if self.in_source:
+            self.name = name
+            return
+         if name == 'source':
+            self.in_source = True
+
+      def endElement(self, name):
+         if name == 'relationship':
+            self.read_to = False
+         elif name == 'source':
+            self.in_source = False
+
+         def no_action(): return
+         def _id(): self.id = self.data.rstrip()
+         def names(): self.names.setdefault(self.id, self.data.rstrip())
+         def alt_id(): self.canonid[self.data.rstrip()] = self.id
+         # Obsolete terms are kept, but the connection
+         # to parents is severed.
+         def is_obsolete(): self.parentDict[self.id] = []
+         def subset():
+            if self.data == 'goslim_generic':
+               self.slim.append(self.id)
+         def is_a():
+            self.parentDict[self.id] = \
+                  self.parentDict.get(self.id, []) + [self.data.rstrip()]
+         def _type():
+            if self.data == 'part_of': self.read_to = True
+         def to():
+            if self.read_to:
+               is_a()
+
+         # Action depends on the tag.
+         {
+
+            'id': _id,
+            'name': names,
+            'alt_id': alt_id,
+            'is_obsolete': is_obsolete,
+            'subset': subset,
+            'is_a': is_a,
+            'type': _type,
+            'to': to
+
+         }.get(name, no_action)()
+
+         if self.in_source and self.name:
+            self.OBOversion.append('%s: %s' % (name, self.data.rstrip()))
+
+      def characters(self, data):
+         # SAX stream can cut anywhere. Process when tag closes.
+         self.data += data
+
+   # End of SAX parser definition.
+
 
    OBOversion = ['-- OBO version information --']
    parentDict = {}
@@ -203,45 +284,15 @@ def parseOBOXML(filename):
    names = {}
    slim = []
 
-   # Get source info.
-   for node in doc.getElementsByTagName('source')[0].childNodes:
-      if node.firstChild:
-         OBOversion.append(
-               '%s: %s' % (node.nodeName, node.firstChild.data)
-            )
-
-   for element in doc.getElementsByTagName('term'):
-
-      ID = element.getElementsByTagName('id')[0].childNodes[0].data
-      name = element.getElementsByTagName('name')[0].childNodes[0].data
-
-      names[ID] = name
-
-      alt_id = [y.data for x in element.getElementsByTagName('alt_id') \
-          for y in x.childNodes]
-      for _id in alt_id:
-          canonid[_id] = ID
-
-      # Obsolete terms are kept, but the connection
-      # to parents is severed.
-      if (element.getElementsByTagName("is_obsolete")):
-         parentDict[ID] = []
-         continue
-
-      goslim = 'goslim_generic' in [y.data for x in \
-          element.getElementsByTagName('subset') for y in x.childNodes]
-      if goslim:
-          slim.append(ID)
-
-      is_a = [y.data for x in element.getElementsByTagName("is_a") \
-          for y in x.childNodes]
-      part_of = [to for (relation, to) in \
-          [[z.data for y in x.childNodes \
-          for z in y.childNodes] \
-          for x in element.getElementsByTagName("relationship")] \
-          if relation == "part_of"]
-
-      parentDict[ID] = is_a + part_of
+   parser = make_parser()
+   parser.setContentHandler(OBOXMLHandler(
+         OBOversion,
+         parentDict,
+         canonid,
+         names,
+         slim
+   ))
+   parser.parse(open(filename))
 
    return {
          'parentDict': parentDict,
@@ -286,7 +337,6 @@ def buildGO(association_fname, OBOXML_fname):
 
    # Parse Gene associations and OBOXML.
    kwargs = parseGeneAssociations(association_fname)
-   # The following line takes most of the time.
    kwargs.update(parseOBOXML(OBOXML_fname))
    # Create the GOspecs instance.
    return GOspecs(**kwargs)
