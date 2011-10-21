@@ -74,7 +74,7 @@ class GOspecs:
       }
 
 
-   
+
    ############## CONSTRUCTOR  ##############
 
    def __init__(self,
@@ -114,7 +114,7 @@ class GOspecs:
          raise GOException(set([
                GO for (GO,gen) in self.associations
             ]).difference(parentDict))
-     
+
       # Versions and dates.
       self.version = []
       self.version.extend(assoVersion)
@@ -174,7 +174,7 @@ class GOspecs:
    def childrenOf(self, GOlist):
       """Return a list of the (direct) children GO terms of
       a GO term set."""
-      
+
       # Allow query by single string.
       GOlist = set([GOlist]) if type(GOlist) is str else set(GOlist)
       return list(set([
@@ -270,6 +270,8 @@ def parseOBOXML(filename):
 
          if self.in_source and self.name:
             self.OBOversion.append('%s: %s' % (name, self.data.rstrip()))
+
+         self.data = ''
 
       def characters(self, data):
          # SAX stream can cut anywhere. Process when tag closes.
