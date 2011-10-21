@@ -11,12 +11,12 @@ except ImportError:
    import simplejson as json
 
 # Home modules.
-from vtrack import vheader
+from vtrack import vheader, vskip
 from misctools import get_closest
 
 __author__ = 'Guillaume Filion'
 __email__ = 'guillaume.filion@gmail.com'
-__date__ = '2011-10-07'
+__date__ = '2011-10-21'
 __version__ = '0.1'
 
 # Beyond that distance (in bp), a TSS has no closest
@@ -39,12 +39,13 @@ def dist(TSS, mapinfo):
 
 
 def JSONtargets(mappingfile, bindingfile):
-   """TODO: write a docstring."""
+   """Create a gene target set in JSON format from a gene mapping
+   file and a discrete binding profile."""
    # Read in gene mapping. Skip comment lines and remove stray
    # 'chr' sometimes present in chromosome names.
    mapping = [
          l.rstrip().replace('chr','').split('\t') \
-         for l in open(mappingfile, 'r') \
+         for l in vskip(open(mappingfile, 'r')) \
          if l[0] != '#'
       ]
 
@@ -68,7 +69,7 @@ def JSONtargets(mappingfile, bindingfile):
    # 'chr' on chromosome names.
    binding = [
          l.rstrip().replace('chr','').split('\t') \
-         for l in open(bindingfile, 'r') \
+         for l in vskip(open(bindingfile, 'r')) \
          if l[0] != '#'
       ]
    # Get feature names and remove (pop) the header.
