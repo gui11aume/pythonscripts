@@ -23,7 +23,7 @@ with open(sys.argv[1]) as lookup:
 def to_canonID(FBmatch):
    return canonID.get(
          FBmatch.group(),
-         '__' + FBmatch.group() + '__'
+         '__' + FBmatch.group()
       )
 
 # Write the vheader.
